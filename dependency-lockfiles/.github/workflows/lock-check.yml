@@ -1,0 +1,12 @@
+name: lock-check
+on: [push, pull_request]
+
+jobs:
+  lock-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install from the lock into a clean container
+        run: docker build --no-cache --build-arg REQS=uv.lock -t agent:ci .
+      - name: Fail if the installed set differs from the lock
+        run: docker run --rm agent:ci uv sync --locked --no-dev --check --offline
